@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tkinter import *
 from PIL import Image, ImageTk
+import json
 
 # Configurar modo claro/ escuro
 def toggle_theme():
@@ -43,8 +44,26 @@ def search_action(query):
     filtered_items = [item for item in all_items if query in item["name"].lower()]
     show_content(filtered_items)
 
-favorite_states = {}  # Armazena os estados de favoritos globalmente
 all_items = []
+
+# Carregar os favoritos do .json
+def load_favorite_states():
+    try:
+        with open("favorite_states.json", "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}
+
+# Salvar os favoritos no .json
+def save_favorite_states():
+    try:
+        with open("favorite_states.json", "w") as file:
+            json.dump(favorite_states, file)
+    except FileNotFoundError:
+        return {}
+
+# Inicializa os estados favoritos
+favorite_states = load_favorite_states()
 
 def toggle_favorite(button, item_name):
     # Verifica o estado atual do item
@@ -52,6 +71,7 @@ def toggle_favorite(button, item_name):
 
     # Atualizar o estado no dicionário
     favorite_states[item_name] = not is_favorite
+    save_favorite_states()  # Salva os estados no arquivo JSON
 
     # Mudar o ícone com base no estado atual
     icon_path = "icons/favorito_active.png" if not is_favorite else "icons/favorito.png"
@@ -62,6 +82,8 @@ def toggle_favorite(button, item_name):
     button.image = image
     print(favorite_states)  # Log de verificação
 
+
+# TESTE DE CODIGO NOVO TERMINA AQUI !!!!!!!!!!!!!! COD 1
 # Toggle hover do icone de Favoritar
 def on_enter(button, active_icon):
     # Trocar o ícone para o ativo ao passar o mouse
@@ -230,7 +252,10 @@ def show_explore_menu():
         button = ctk.CTkButton(master=main_frame, text=button_name, command=lambda c=content: show_content(c), fg_color="red")
         button.pack(pady=10, padx=20, side= "top", anchor= "w")
 
-# Menu 'Favoritos'
+
+# Menu 'Opções'
+
+# PARTE 2 MODIFICACOES
 def show_favorites_menu():
     clear_frame(main_frame)
     favoritos_label = ctk.CTkLabel(master=main_frame, text="Favoritos", font=("Arial", 18, "bold"))
@@ -240,18 +265,14 @@ def show_favorites_menu():
     favorite_items = []
     for item_name, is_favorite in favorite_states.items():
         if is_favorite:
-            # Aqui você deve buscar de onde o item é, por exemplo, de uma lista de praias ou bares
-            # Vou usar exemplos genéricos, substitua pelos seus dados reais
-            for category in [explorar_praia(), explorar_bares()]:  # Adicione outras categorias conforme necessário
-                for item in category[1]:  # item seria cada item dentro da categoria
+            for category in [explorar_praia(), explorar_bares()]:
+                for item in category[1]:
                     if item["name"] == item_name:
                         favorite_items.append(item)
 
-    # Chamar a função show_content com os itens favoritos
     show_content(favorite_items)
 
-
-# Menu 'Opções'
+# PARTE 2 MODIFICACOES FIM !!!!
 def show_options_menu():
     clear_frame(main_frame)
     global theme_button
