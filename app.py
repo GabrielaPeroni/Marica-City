@@ -1,10 +1,12 @@
 import customtkinter as ctk
 from tkinter import *
 from PIL import Image, ImageTk
+import os
 
-# Configurar modo claro/ escuro
+# Configurar modo claro/escuro
 def toggle_theme():
     global dark_mode
+
     dark_mode = not dark_mode
 
     if dark_mode:
@@ -14,21 +16,70 @@ def toggle_theme():
         ctk.set_appearance_mode("light")
         theme_button.configure(text="Modo Escuro")
 
-    # Lista dos componentes que precisam ser atualizados
-    components_to_update = [header, menu_frame, search_frame]
+    transparent_windows = [header, menu_frame, search_frame]
 
-    # Atualiza a cor de fundo de todos os componentes na lista
-    for component in components_to_update:
+    for component in transparent_windows:
         component.configure(fg_color=app.cget("bg"))
-
-# Logica da Pesquisa
-def search_action(query):
-    print(f"Pesquisa realizada: {query}")
 
 # Limpar o frame
 def clear_frame(frame):
     for widget in frame.winfo_children():
         widget.destroy()
+
+def load_icons(icon_folder):
+    icons = {}
+
+    for icon_file in os.listdir(icon_folder):
+        icon_name = os.path.splitext(icon_file)[0]
+        icon_path = os.path.join(icon_folder, icon_file)
+
+        icons[icon_name] = PhotoImage(file=icon_path).subsample(30, 30) 
+
+    return icons
+
+# Lógica da Pesquisa
+def search_action(query):
+    # Lista de todas as categorias disponíveis
+    all_items = explorar_praia()[1] + explorar_bares()[1]
+
+    # Filtrar os itens que contêm o termo pesquisado no nome
+    filtered_items = [item for item in all_items if query in item["name"].lower()]
+    
+    # Mostrar os resultados no main_frame
+    show_content(filtered_items)
+
+# Exibir o conteúdo de uma categoria // resultado de pesquisa
+def show_content(items):
+    clear_frame(main_frame)
+
+    if not items:
+        no_result_label = ctk.CTkLabel(master=main_frame, text="Nenhum resultado encontrado.", font=("Arial", 16, "bold"))
+        no_result_label.pack(pady=20)
+        return
+
+    for item in items:
+        frame = ctk.CTkFrame(master=main_frame, corner_radius=10)
+        frame.pack(pady=10, padx=20, fill="x")
+
+        try:
+            img = Image.open(item["image"])
+            img = img.resize((120, 90))
+            image = ImageTk.PhotoImage(img)
+
+            label_image = ctk.CTkLabel(master=frame, image=image, text="")
+            label_image.image = image
+            label_image.pack(side="left", padx=10)
+        except Exception as e:
+            print(f"Erro ao carregar a imagem: {item['image']} - {e}")
+
+        label_name = ctk.CTkLabel(master=frame, text=item["name"], font=("Arial", 16))
+        label_name.pack(anchor="w", pady=(10, 0), padx=(10, 0))
+
+        label_description = ctk.CTkLabel(master=frame, text=item["description"], wraplength=400)
+        label_description.pack(anchor="w", pady=(10, 0), padx=(10, 0))
+
+        button_details = ctk.CTkButton(master=frame, text="Ver mais", command=lambda p=item: show_gallery(p), fg_color= "red")
+        button_details.pack(pady=(0, 10), padx=(0, 10), anchor="e")
 
 # Exibir a galeria e descrição de cada item dentro das categorias
 def show_gallery(place):
@@ -39,8 +90,8 @@ def show_gallery(place):
     
     # Carregar imagem principal
     try:
-        img = Image.open(place["image"])
-        img = img.resize((400, 300))
+        img = Image.open(place["image"]).resize((400, 300))
+
         image = ImageTk.PhotoImage(img)
         main_image_label = ctk.CTkLabel(master=main_frame, image=image, text="")
         main_image_label.image = image
@@ -71,8 +122,7 @@ def show_gallery(place):
         
         for image_path in gallery_images:
             try:
-                img = Image.open(image_path)
-                img = img.resize((120, 90))
+                img = Image.open(image_path).resize((120, 90))
                 image = ImageTk.PhotoImage(img)
                 gallery_label = ctk.CTkButton(master=gallery_container, image=image, text="", 
                                               command=lambda img=image_path: update_main_image(main_image_label, img))
@@ -95,51 +145,27 @@ def update_main_image(main_image_label, image_path):
     except Exception as e:
         print(f"Erro ao carregar a imagem: {image_path} - {e}")
 
-# Exibir o conteúdo de uma categoria
-def show_content(items):
-    clear_frame(main_frame)
-    
-    for item in items:
-        frame = ctk.CTkFrame(master=main_frame, corner_radius=10)
-        frame.pack(pady=10, padx=20, fill="x")
-        
-        try:
-            img = Image.open(item["image"])
-            img = img.resize((120, 90))
-            image = ImageTk.PhotoImage(img)
-            label_image = ctk.CTkLabel(master=frame, image=image, text="")
-            label_image.image = image
-            label_image.pack(side="left", padx=10)
-        except Exception as e:
-            print(f"Erro ao carregar a imagem: {item['image']} - {e}")
-        
-        label_name = ctk.CTkLabel(master=frame, text=item["name"], font=("Arial", 16))
-        label_name.pack(anchor="w", pady=(10, 0), padx=(10, 0))
-        
-        label_description = ctk.CTkLabel(master=frame, text=item["description"], wraplength=400)
-        label_description.pack(anchor="w",pady=(10, 0), padx=(10, 0))
-        
-        button_details = ctk.CTkButton(master=frame, text="Ver mais", command=lambda p=item: show_gallery(p), fg_color="red")
-        button_details.pack(pady=(0, 10), padx=(0, 10), anchor="e")
 
-# Funções individuais de exploração
+#  Exploração (individual)
 def explorar_praia():
     praias = [
-        {"name": "Praia do Francês", "image": "images/praia1.png", "description": "Uma das mais belas praias do Brasil.", "gallery": ["images/praia1.png", "images/praia1_1.png"]},
-        {"name": "Praia de Copacabana", "image": "images/praia2.png", "description": "Famosa praia no Rio de Janeiro.", "gallery": ["images/praia2_1.png"]},
+        {"name": "Praia do Francês", "image": "images/praia1.png",
+         "description": "Uma das mais belas praias do Brasil.",
+         "gallery": ["images/praia1.png", "images/praia1_1.png"]},
+        {"name": "Praia de Copacabana", "image": "images/praia2.png", "description": "Famosa praia no Rio de Janeiro.",
+         "gallery": ["images/praia2_1.png"]},
     ]
-
-    # Retorna o nome do botão e os itens
     return "Praias", praias
 
 def explorar_bares():
     bares = [
-        {"name": "Bar do Zé", "image": "images/bar1.png", "description": "Ambiente agradável com música ao vivo.", "gallery": ["images/bar1.png", "images/bar1_1.png"]},
-        {"name": "Botequim do João", "image": "images/bar2.png", "description": "Excelente local para petiscos e cerveja gelada.", "gallery": ["images/bar2_1.png"]},
+        {"name": "Bar do Zé", "image": "images/img1.png", "description": "Ambiente agradável com música ao vivo.",
+         "gallery": ["images/img1.png", "images/img1.png"]},
+        {"name": "Botequim do João", "image": "images/bar2.png",
+         "description": "Excelente local para petiscos e cerveja gelada.", "gallery": ["images/bar2_1.png"]},
     ]
-
-    # Retorna o nome do botão e os itens
     return "Bares", bares
+
 
 # Menu 'Inicio'
 def show_home():
@@ -150,71 +176,76 @@ def show_home():
 # Menu 'Explorar'
 def show_explore_menu():
     clear_frame(main_frame)
-    
-    # Lista de funções para explorar
     explore_options = [explorar_praia, explorar_bares]
-    
+
     for option_func in explore_options:
-        button_name, content = option_func()  # Obtém o nome do botão e os itens
+        button_name, content = option_func()
         button = ctk.CTkButton(master=main_frame, text=button_name, command=lambda c=content: show_content(c), fg_color="red")
-        button.pack(pady=10, padx=20)
+        button.pack(pady=10, padx=20, side= "top", anchor= "w")
 
 # Menu 'Opções'
 def show_options_menu():
     clear_frame(main_frame)
     global theme_button
-    theme_button = ctk.CTkButton(master=main_frame, text="Modo Claro", command=toggle_theme, fg_color="red")
+    theme_button = ctk.CTkButton(master=main_frame, text="Modo Claro", command=toggle_theme)
     theme_button.pack(pady=10, padx=20)
 
-
-#################### APLICATIVO // ESPECIFICACOES GLOBAIS ####################
-# Tamanho da janela
+#################### APLICATIVO ####################
 app = ctk.CTk()
-app.geometry("1200x800")
+app.geometry("800x600")
 app.title("Marica City")
+app.resizable(width= False, height= False)
 
-# Configurações de expansão de linhas e colunas
 app.grid_rowconfigure(1, weight=1)
 app.grid_columnconfigure(1, weight=1)
 
-# Cabeçalho / MARICA CITY
+
+# Nome MARICA CITY
 header = ctk.CTkFrame(app, width=260, fg_color=app.cget("bg"))
 header.grid(row=0, column=0, sticky="ew", padx=(10, 0), pady=(0, 10))
 
-header_label = ctk.CTkLabel(header, text="MARICA CITY", text_color="red", font=("Arial", 20, "bold"))
+header_label = ctk.CTkLabel(header, text="MARICA CITY", text_color= "red", font=("Arial", 20, "bold"))
 header_label.grid(row=0, column=0, pady=10)
 
 
-# Barra de Pesquisa / BEM VINDO
+# Botao de pesquisa
 search_frame = ctk.CTkFrame(app, width=300, height=50, fg_color=app.cget("bg"))
 search_frame.grid(row=0, column=1, sticky="ew", padx=(10, 0))
 
 search_entry = ctk.CTkEntry(search_frame, width=200)
 search_entry.grid(row=0, column=0, padx=(10, 0), pady=10)
 
-search_button = ctk.CTkButton(search_frame, text="Pesquisar", command=lambda: search_action(search_entry.get().lower()), fg_color="red")
+search_button = ctk.CTkButton(search_frame, text="Pesquisar", command=lambda: search_action(search_entry.get().lower()), fg_color= "red")
 search_button.grid(row=0, column=1, padx=(5, 0), pady=10)
 
 
-# Frame principal / onde o conteúdo será mostrado
+# Frame principal
 main_frame = ctk.CTkFrame(master=app)
 main_frame.grid(row=1, column=1, sticky="nsew", padx=(10, 0))
 
-# Menu lateral / Inicio, Explorar, Opções
 menu_frame = ctk.CTkFrame(master=app, fg_color=app.cget("bg"))
 menu_frame.grid(row=1, column=0, sticky="ns", pady=(0, 10))
 
+
+# Diretorio das imagens usadas / mantenha o mesmo nome dos arquivos !!
+image_folder = r"C:\Users\prett\OneDrive\Documents\Gabby\Facul\Curso_Marica\images"
+icons = load_icons(r"C:\Users\prett\OneDrive\Documents\Gabby\Facul\Curso_Marica\icon")
+
+# Botoes da esquerda / MENU
 menu_buttons = [
-    {"text": "Inicio", "command": show_home},
-    {"text": "Explorar", "command": show_explore_menu},
-    {"text": "Opções", "command": show_options_menu},
+    {"text": "Inicio", "command": show_home, "icon" : icons["home"]},
+    {"text": "Explorar", "command": show_explore_menu, "icon" : icons["explorar"]},
+    {"text": "Opções", "command": show_options_menu, "icon" : icons["opcoes"]},
 ]
 
 for index, btn in enumerate(menu_buttons):
-    ctk.CTkButton(master=menu_frame, text=btn["text"], command=btn["command"], fg_color="red").grid(row=index, column=0, pady=10, padx=10)
-
-# Inicializa com a tela de início
+    ctk.CTkButton(master=menu_frame, text=btn["text"], command=btn["command"], image=btn["icon"], compound=LEFT,
+                  fg_color="red").grid(row=index, column=0, pady=10, padx=10)
+    
+# Tema inicial
 dark_mode = False
+ctk.set_appearance_mode("light")
 
+# Exibe o menu inicial
 show_home()
 app.mainloop()
