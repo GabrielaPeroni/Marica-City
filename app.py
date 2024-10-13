@@ -3,11 +3,14 @@ from PIL import Image
 from galeria import show_content, show_gallery, update_main_image, clear_frame
 from categorias import (explorar_praia, explorar_trilhas, explorar_parques,  
                         explorar_cultura ,explorar_restaurantes, explorar_bares, 
-                        explorar_boates, explorar_pousadas, explorar_estacionamento)
+                        explorar_pousadas, explorar_estacionamento)
 
 ##### Color Index #####
-color   = "#ff1818"
-color_h = "#d30000"
+light_color  = "#ff1818"
+light_colorh = "#ce040a"
+
+dark_color   = "#362AF2"
+dark_colorh  = "#212ea0"
 
 # Configurar modo claro/ escuro
 def toggle_theme():
@@ -32,7 +35,7 @@ def toggle_theme():
 def search_action(query):
     all_items = (explorar_praia()[1] + explorar_trilhas()[1] + explorar_parques()[1] 
                  + explorar_cultura()[1] + explorar_restaurantes()[1] + explorar_bares()[1] 
-                 + explorar_boates()[1] + explorar_pousadas()[1] + explorar_estacionamento()[1])
+                 + explorar_pousadas()[1] + explorar_estacionamento()[1])
 
     # Filtrar os itens apenas se a query não estiver vazia
     if query.strip():
@@ -53,8 +56,8 @@ def search_action(query):
 def load_icons():
     icons = {
         "home": CTkImage(Image.open("icons/home.png"), size=(25, 25)),
-        "mapa": CTkImage(Image.open("icons/mapa.png"), size=(28, 28)),
         "explorar": CTkImage(Image.open("icons/explorar.png"), size=(25, 25)),
+        "mapa": CTkImage(Image.open("icons/mapa.png"), size=(28, 28)),
         "favoritos": CTkImage(Image.open("icons/favorito.png"), size=(25, 25)),
         "opcoes": CTkImage(Image.open("icons/opcoes.png"), size=(25, 25))
     }
@@ -100,7 +103,7 @@ def show_explore_menu():
 
     explore_options = [explorar_praia, explorar_trilhas, explorar_parques,  
                         explorar_cultura ,explorar_restaurantes, explorar_bares, 
-                        explorar_boates, explorar_pousadas, explorar_estacionamento]
+                        explorar_pousadas, explorar_estacionamento]
 
     for option_func in explore_options:
         button_name, content, img_path = option_func()
@@ -136,7 +139,7 @@ def show_favorites_menu():
     for item_name, is_favorite in favorite_states.items():
         if is_favorite:
             for category in [explorar_praia(), explorar_trilhas(), explorar_parques(), explorar_cultura(), explorar_restaurantes(),
-                             explorar_bares(),explorar_boates(), explorar_pousadas(), explorar_estacionamento()]:
+                             explorar_bares(), explorar_pousadas(), explorar_estacionamento()]:
                 for item in category[1]:
                     if item["name"] == item_name:
                         favorite_items.append(item)
@@ -155,12 +158,12 @@ def show_options_menu():
     clear_frame(normal_frame)
 
     global theme_button
-    theme_button = CTkButton(master=normal_frame, text="Modo Escuro", command=toggle_theme, fg_color=color, hover_color = color_h)
+    theme_button = CTkButton(master=normal_frame, text="Modo Escuro", command=toggle_theme, fg_color=(light_color, dark_color), hover_color=(light_colorh, dark_colorh))
     theme_button.pack(pady=10, padx=20)
 
 #################### APLICATIVO ####################
 app = CTk()
-app.geometry("1200x700")
+app.geometry("1200x800")
 app.title("Marica City")
 app.resizable(width=False, height=False)
 
@@ -171,7 +174,7 @@ app.grid_columnconfigure(1, weight=1)
 header = CTkFrame(app, width=260, fg_color=app.cget("bg"))
 header.grid(row=0, column=0, sticky="ew", padx=(10, 0), pady=(0, 10))
 
-header_label = CTkLabel(header, text="MARICA CITY", text_color= color, font=("Arial", 20, "bold"))
+header_label = CTkLabel(header, text="MARICA CITY", text_color= (light_color, "#2133FF"), font=("Arial", 20, "bold"))
 header_label.grid(row=0, column=0, pady=10, padx=10)
 
 # Botao de pesquisa
@@ -181,7 +184,7 @@ search_frame.grid(row=0, column=1, sticky="w", padx=(10, 0))
 search_entry = CTkEntry(search_frame, width=350)
 search_entry.grid(row=0, column=0, padx=(10, 0), pady=10)
 
-search_button = CTkButton(search_frame, text="Pesquisar", command=lambda: search_action(search_entry.get().lower()), fg_color=color, hover_color = color_h, width=100)
+search_button = CTkButton(search_frame, text="Pesquisar", command=lambda: search_action(search_entry.get().lower()), fg_color=(light_color, dark_color), hover_color = (light_colorh, dark_colorh), width=100)
 search_button.grid(row=0, column=1, padx=(4, 0), pady=10)
 
 # Frame principal
@@ -197,8 +200,8 @@ menu_frame.grid(row=1, column=0, sticky="ns", pady=(0, 10))
 icon = load_icons()
 menu_buttons = [
     {"text": "Inicio      ", "command": show_home, "icon": icon["home"]},
-    {"text": "Mapa     ", "command": show_mapa, "icon": icon["mapa"]},
     {"text": " Explorar", "command": show_explore_menu, "icon": icon["explorar"]},
+    {"text": "Mapa     ", "command": show_mapa, "icon": icon["mapa"]},
     {"text": "Favoritos", "command": show_favorites_menu, "icon": icon["favoritos"]},
     {"text": "Opções   ", "command": show_options_menu, "icon": icon["opcoes"]}
 ]
@@ -210,8 +213,8 @@ for index, btn in enumerate(menu_buttons):
         command=btn["command"],
         image=btn["icon"],
         compound="left",
-        fg_color=color,
-        hover_color = color_h,
+        fg_color=(light_color, dark_color),
+        hover_color=(light_colorh, dark_colorh),
         width=150,
         height=40
     ).grid(row=index, column=0, pady=10, padx=10)
