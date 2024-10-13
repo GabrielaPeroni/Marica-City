@@ -3,13 +3,15 @@ from PIL import Image
 from favoritos import toggle_favorite, on_enter, on_leave
 
 ##### Color Index #####
-color   = "#ff1818"
-color_h = "#d30000"
+light_color  = "#ff1818"
+light_colorh = "#ce040a"
+
+dark_color   = "#362AF2"
+dark_colorh  = "#212ea0"
 
 def clear_frame(frame):
     for widget in frame.winfo_children():
         widget.destroy()
-
 
 # Menu da categoria
 def show_content(main_frame, items,  app):
@@ -55,19 +57,20 @@ def show_content(main_frame, items,  app):
         initial_icon = "icons/favorito_active.png" if favorite_states.get(item["name"], False) else "icons/favorito.png"
         favorite_button.configure(image=CTkImage(Image.open(initial_icon), size=(20, 20)))
     
-        button_details = CTkButton(master=frame, text="Ver mais", command=lambda p=item: show_gallery(main_frame, p, items,  app), fg_color=color, hover_color = color_h)
+        button_details = CTkButton(master=frame, text="Ver mais", command=lambda p=item: show_gallery(main_frame, p, items,  app), fg_color=(light_color, dark_color), hover_color=(light_colorh, dark_colorh))
         button_details.pack(pady=(0, 10), padx=(0, 10), anchor="e")
 
 # menu de 'Ver Mais'
 def show_gallery(main_frame, place, all_items, app):
     clear_frame(main_frame)
 
+
     main_frame._parent_canvas.yview_moveto(0.0)
 
     global last_clicked_category
     last_clicked_category = all_items
 
-    back_button = CTkButton(master=main_frame, text="Voltar", command=lambda: show_content(main_frame, last_clicked_category,  app), fg_color=color, hover_color = color_h)
+    back_button = CTkButton(master=main_frame, text="Voltar", command=lambda: show_content(main_frame, last_clicked_category,  app), fg_color=(light_color, dark_color), hover_color=(light_colorh, dark_colorh))
     back_button.pack(pady=(10, 5), padx=(10, 0), anchor="nw")
 
     try:
@@ -82,7 +85,7 @@ def show_gallery(main_frame, place, all_items, app):
     label_name = CTkLabel(master=main_frame, text=place["name"], font=("Arial", 20, "bold"))
     label_name.pack(pady=(10, 5))
 
-    label_description = CTkLabel(master=main_frame, text=place["description"], wraplength=600)
+    label_description = CTkLabel(master=main_frame, text=place["address"], wraplength=600)
     label_description.pack(pady=(5, 10))
 
     gallery_images = place.get("gallery", [])
