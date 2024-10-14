@@ -92,6 +92,7 @@ def show_home():
 def show_mapa():
     global normal_frame
     clear_frame(main_frame)
+    all_items.clear()
 
     if normal_frame is None:
         normal_frame = CTkFrame(master=app)
