@@ -63,6 +63,10 @@ def atualizar_imagem(item_selecionado):
     map_imagem.configure(image=None)
     selected_item = next((item for item in all_items if item["name"] == item_selecionado), None)
 
+    if selected_item:
+        map_description.configure(text=selected_item["description"])
+        map_address.configure(text=selected_item["address"])
+
     try:
         print(f"Carregando a imagem do mapa {selected_item['map']}...")  
         img = Image.open(selected_item["map"])
@@ -86,13 +90,16 @@ def show_home():
     clear_frame(normal_frame)
 
     home_label = CTkLabel(master=normal_frame, text="Bem-vindo à Maricá City!", font=(font, 18, "bold"))
-    home_label.pack(pady=20)
+    home_label.pack(pady=(20, 0))
+
+    text_label = CTkLabel(normal_frame, text="Feito com carinho pelo time do Qualifica Maricá", font=(font, 16), anchor= "n")
+    text_label.pack(pady = 8)
 
 # Menu 'Mapa'
 def show_mapa():
-    global normal_frame
-    clear_frame(main_frame)
+    global normal_frame, map_description, map_address
     all_items.clear()
+    clear_frame(main_frame)
 
     if normal_frame is None:
         normal_frame = CTkFrame(master=app)
@@ -105,15 +112,32 @@ def show_mapa():
 
     nomes_itens = [item["name"] for item in all_items]
     nomes_itens.sort()
-    
-    map_menu = CTkOptionMenu(normal_frame, values=nomes_itens, command=atualizar_imagem, width= 200, height= 30, dropdown_fg_color= ("light gray", "gray"), corner_radius= 4,
-                             button_color = (light_colorh, dark_colorh), hover= False, fg_color=(light_color, dark_color), anchor= "center", text_color= "white")
-    map_menu.pack(side="left", anchor="nw", pady=(40,0),padx=(50,0))
+
+    map_info = CTkLabel(normal_frame, text="Imagem dos mapas cortesia de Google LLC", font=(font, 16, "italic"), anchor="s")
+    map_info.pack(side="bottom", pady=(0, 20))
+
+    map_menu = CTkOptionMenu(normal_frame, values=nomes_itens, command=atualizar_imagem, width=250, height=30,
+                             dropdown_fg_color=("light gray", "gray"), corner_radius=4,
+                             button_color=(light_colorh, dark_colorh), hover=False,
+                             fg_color=(light_color, dark_color), anchor="center",
+                             text_color="white")
+    map_menu.pack(side="top", anchor="nw", pady=(20, 0), padx=(50, 0))
+
+    side_frame = CTkFrame(normal_frame, fg_color="transparent")
+    side_frame.pack(side="top", fill="both", padx=20, pady=(10, 0))
+
+    info_frame = CTkFrame(side_frame, fg_color="transparent")
+    info_frame.pack(side="left", anchor="nw", padx=(40, 0))
+
+    map_description = CTkLabel(info_frame, text="", font=(font, 14, "bold"), wraplength=220)
+    map_description.pack(side="top", anchor="nw", pady=(20, 0), padx = 10)
+
+    map_address = CTkLabel(info_frame, text="", font=(font, 14), wraplength=280)
+    map_address.pack(side="top", anchor="nw", pady=(30, 0))
 
     global map_imagem
-    map_imagem = CTkLabel(normal_frame, text="", anchor= "e")
-    map_imagem.pack(side="right", fill="both", expand=True, pady=(10,60), padx=(10,50))
-
+    map_imagem = CTkLabel(side_frame, text="", anchor="e")
+    map_imagem.pack(side="right", fill="both", expand=True) 
 
 # Menu 'Explorar'
 def show_explore_menu():
