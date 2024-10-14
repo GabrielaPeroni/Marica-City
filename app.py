@@ -223,9 +223,6 @@ app.resizable(width=False, height=False)
 app.grid_rowconfigure(1, weight=1)
 app.grid_columnconfigure(1, weight=1)
 
-app_frame = CTkFrame(app,fg_color=app.cget("bg"))
-app_frame.grid()
-
 # Frame Header
 header = CTkFrame(app, width=260, fg_color=app.cget("bg"))
 header.grid(row=0, column=0, sticky="ew", padx=(10, 0), pady=(0, 10))
