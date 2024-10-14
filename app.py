@@ -107,8 +107,7 @@ def show_mapa():
     nomes_itens.sort()
     
     map_menu = CTkOptionMenu(normal_frame, values=nomes_itens, command=atualizar_imagem, width= 200, height= 30, dropdown_fg_color= ("light gray", "gray"), corner_radius= 4,
-                             button_color = (light_colorh, dark_colorh), hover= False, fg_color=(light_color, dark_color), anchor= "center", text_color= "white", 
-                             dynamic_resizing = False)
+                             button_color = (light_colorh, dark_colorh), hover= False, fg_color=(light_color, dark_color), anchor= "center", text_color= "white")
     map_menu.pack(side="left", anchor="nw", pady=(40,0),padx=(50,0))
 
     global map_imagem
