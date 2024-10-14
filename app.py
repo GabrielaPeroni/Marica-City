@@ -211,6 +211,11 @@ def show_options_menu():
     theme_button = CTkButton(master=normal_frame, text="Modo Escuro", font=(font, 13), command=toggle_theme, fg_color=(light_color, dark_color), hover_color=(light_colorh, dark_colorh), width= 180)
     theme_button.pack(pady=10, padx=20)
 
+    option_text = "== EM CASO DE EMERGÊNCIA CONSULTE OS SEGUINTES NÚMEROS ==\n\n CORPO DE BOMBEIROS - 193\nPOLICIA MILITAR - 190\nSAMU - 191\n"
+
+    option_menu = CTkLabel(master=normal_frame, text=option_text, font=(font, 13, "bold"),fg_color="transparent")
+    option_menu.pack(side = "bottom", anchor = "s", pady = (0, 20))
+
 
 ########################################   APLICATIVO   ########################################
 app = CTk()
