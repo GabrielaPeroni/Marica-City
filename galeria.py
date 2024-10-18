@@ -1,6 +1,7 @@
 from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkImage, CTkCanvas
 from PIL import Image
-from favoritos import toggle_favorite, from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkImage, CTkCanvas
+from favoritos import toggle_favorite
+from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkImage, CTkCanvas
 from PIL import Image
 from favoritos import toggle_favorite, on_enter, on_leave
 
